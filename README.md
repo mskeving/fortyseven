@@ -2,12 +2,21 @@
 
 ### Backend setup
 
-`$ pip install virtualenvwrapper`
+- `$ pip install virtualenvwrapper`
+- `$ mkvirtualenv -p python3 fortyseven`
+- `$ workon fortyseven`
+- `$ pip install -r requirements.txt`
+- `$ python dev.py`
 
-`$ mkvirtualenv -p python3 fortyseven`
+### Set up local db
 
-`$ workon fortyseven`
+- Install [psql](https://postgresapp.com/)
+- `$ psql`
+- `$ create database fortyseven`
+- In another tab, `$ cd fortyseven/`
+- `alembic upgrade head`
 
-`$ pip install -r requirements.txt`
+### Re-initialize db
 
-`$ python dev.py`
+- `$ cd fortyseven/`
+- `$ python manage.py initdb`

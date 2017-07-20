@@ -28,3 +28,11 @@ class Token(db.Model):
     __tablename__ = "tokens"
     key = db.Column(db.Text(), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+class Media(db.Model):
+    __tablename__ = "media"
+
+    id = db.Column(db.Integer, primary_key=True)
+    media_type = db.Column(db.Text())
+    sender_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    url = db.Column(db.Text())
