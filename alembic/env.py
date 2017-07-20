@@ -12,7 +12,10 @@ from app import db, create_app
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
 app = create_app('Development')
+config.set_main_option('sqlalchemy.url', app.config['SQLALCHEMY_DATABASE_URI'])
+
 config.set_main_option('sqlalchemy.url', app.config['SQLALCHEMY_DATABASE_URI'])
 
 # Interpret the config file for Python logging.
