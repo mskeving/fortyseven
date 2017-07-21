@@ -1,13 +1,13 @@
 """initial tables
 
-Revision ID: 3880088aaeb
+Revision ID: f151632f26
 Revises: None
-Create Date: 2017-07-20 09:06:10.195460
+Create Date: 2017-07-20 17:55:22.405419
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '3880088aaeb'
+revision = 'f151632f26'
 down_revision = None
 
 from alembic import op
@@ -23,7 +23,7 @@ def upgrade():
     sa.Column('label', sa.Text(), nullable=True),
     sa.Column('message_id', sa.Text(), nullable=True),
     sa.Column('pruned', sa.Text(), nullable=True),
-    sa.Column('send_time_unix', sa.Text(), nullable=True),
+    sa.Column('timestamp', sa.Text(), nullable=True),
     sa.Column('subject', sa.Text(), nullable=True),
     sa.Column('thread_id', sa.Text(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
@@ -40,8 +40,11 @@ def upgrade():
     op.create_table('media',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('media_type', sa.Text(), nullable=True),
+    sa.Column('message_id', sa.Integer(), nullable=True),
     sa.Column('sender_id', sa.Integer(), nullable=True),
+    sa.Column('timestamp', sa.Text(), nullable=True),
     sa.Column('url', sa.Text(), nullable=True),
+    sa.ForeignKeyConstraint(['message_id'], ['messages.id'], ),
     sa.ForeignKeyConstraint(['sender_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
