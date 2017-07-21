@@ -1,13 +1,13 @@
 """initial tables
 
-Revision ID: f151632f26
+Revision ID: 48bf23fea4b
 Revises: None
-Create Date: 2017-07-20 17:55:22.405419
+Create Date: 2017-07-21 09:07:26.644912
 
 """
 
 # revision identifiers, used by Alembic.
-revision = 'f151632f26'
+revision = '48bf23fea4b'
 down_revision = None
 
 from alembic import op
@@ -41,11 +41,8 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('media_type', sa.Text(), nullable=True),
     sa.Column('message_id', sa.Integer(), nullable=True),
-    sa.Column('sender_id', sa.Integer(), nullable=True),
-    sa.Column('timestamp', sa.Text(), nullable=True),
     sa.Column('url', sa.Text(), nullable=True),
     sa.ForeignKeyConstraint(['message_id'], ['messages.id'], ),
-    sa.ForeignKeyConstraint(['sender_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     ### end Alembic commands ###

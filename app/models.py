@@ -35,6 +35,4 @@ class Media(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     media_type = db.Column(db.Text())
     message_id = db.Column(db.Integer, db.ForeignKey('messages.id'))
-    sender_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    timestamp = db.Column(db.Text())
     url = db.Column(db.Text())
