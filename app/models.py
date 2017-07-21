@@ -20,7 +20,7 @@ class Message(db.Model):
     label = db.Column(db.Text())  # "chats"
     message_id = db.Column(db.Text(), unique=True)
     pruned = db.Column(db.Text())
-    send_time_unix = db.Column(db.Text())
+    timestamp = db.Column(db.Text())
     subject = db.Column(db.Text())
     thread_id = db.Column(db.Text())
 
@@ -34,5 +34,7 @@ class Media(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     media_type = db.Column(db.Text())
+    message_id = db.Column(db.Integer, db.ForeignKey('messages.id'))
     sender_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    timestamp = db.Column(db.Text())
     url = db.Column(db.Text())
