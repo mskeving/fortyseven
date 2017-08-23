@@ -4,6 +4,12 @@ const initialState = {
   loading: true
 };
 
+export const loadList = () => {
+  return dispatch => {
+    dispatch({ type: LOAD });
+  }
+};
+
 export default (state = initialState, action) => {
   switch (action.type) {
     case LOAD:
@@ -13,11 +19,5 @@ export default (state = initialState, action) => {
       };
     default:
       return state;
-  }
-};
-
-export const loadList = () => {
-  return dispatch => {
-    dispatch({ type: LOAD });
   }
 };
