@@ -3,13 +3,13 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
-import store, { history } from './store';
-import App from './components/App';
-import Links from './components/Links';
-import NotFound from './components/NotFound';
-import registerServiceWorker from './registerServiceWorker';
+import store, { history } from 'store';
+import App from 'components/App';
+import Links from 'components/Links';
+import NotFound from 'components/NotFound';
+import registerServiceWorker from 'registerServiceWorker';
 
-import './styles/reset.css';
+import 'styles/reset.css';
 
 render(
   <Provider store={store}>
