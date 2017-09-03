@@ -6,6 +6,7 @@ db = SQLAlchemy(app)
 
 def create_app(config):
     app.config.from_object('config.flask.{}'.format(config))
+    app.config.from_pyfile('../config/secrets.cfg')
     db.init_app(app)
     return app
 
