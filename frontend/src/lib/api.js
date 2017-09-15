@@ -18,8 +18,6 @@ export function apiFetch(path, method = 'POST', params = null) {
   });
 }
 
-window._apifetch = apiFetch;
-
 export function apiGet(path, params = null) {
   return apiFetch(path, 'GET', params);
 }

@@ -25,19 +25,21 @@ export function setAuth(token, email) {
 }
 
 export function initializeAuthLib() {
-  if (window.gapi.auth2) {
-    return;
-  }
-
-  window.gapi.load('auth2', () => {
-    window.gapi.auth2.init({
-      client_id: GOOGLE_CLIENT_ID,
-      fetch_basic_profile: false,
-      scope: 'email',
-    }).then(
-      () => this.setState({ready: true})
-    );
-  });
+  return new Promise((resolve, reject) => {
+    if (window.gapi.auth2) {
+      resolve();
+    } else {
+      window.gapi.load('auth2', () => {
+        window.gapi.auth2.init({
+          client_id: GOOGLE_CLIENT_ID,
+          fetch_basic_profile: false,
+          scope: 'email',
+        }).then(
+          () => resolve()
+        );
+      });
+    }
+  })
 }
 
 export function authorizeUser() {

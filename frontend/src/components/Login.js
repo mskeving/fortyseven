@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
+import { authorizeUser, initializeAuthLib, AuthScriptLoader } from 'lib/auth';
 
 class Login extends Component {
   constructor(props, context) {
@@ -8,19 +10,30 @@ class Login extends Component {
 
   componentWillReceiveProps({ isScriptLoadSucceed }) {
     if (isScriptLoadSucceed) {
-      initializeAuthLib();
+      initializeAuthLib().then(
+        () => this.setState({ ready: true })
+      );
     }
+  }
+
+  login = () => {
+    const { history } = this.props;
+    authorizeUser().then(
+      () => history.push('/')
+    );
   }
 
   render() {
     return (
-      <div className="Login">
-        <div className="Button" onClick={authorizeUser}>
-          Login
+      <div className="Login--container">
+        <div className="Login">
+          <div className="Button" onClick={this.login}>
+            Login
+          </div>
         </div>
       </div>
     );
   }
 }
 
-export default AuthScriptLoader(Login);
+export default withRouter(AuthScriptLoader(Login));
