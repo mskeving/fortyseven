@@ -24,50 +24,47 @@ export function setAuth(token, email) {
   } catch (e) {}
 }
 
-export function initializeAuthLib() {
-  return new Promise((resolve, reject) => {
-    if (window.gapi.auth2) {
-      resolve();
-    } else {
-      window.gapi.load('auth2', () => {
-        window.gapi.auth2.init({
-          client_id: GOOGLE_CLIENT_ID,
-          fetch_basic_profile: false,
-          scope: 'email',
-        }).then(
-          () => resolve()
-        );
-      });
-    }
-  })
+export async function initializeAuthLib() {
+  if (window.gapi.auth2) {
+    return;
+  }
+
+  await new Promise((resolve, reject) => {
+    window.gapi.load('auth2', () => {
+      window.gapi.auth2.init({
+        client_id: GOOGLE_CLIENT_ID,
+        fetch_basic_profile: false,
+        scope: 'email',
+      }).then(
+        () => resolve()
+      );
+    });
+  });
+
+  return;
 }
 
-export function authorizeUser() {
+export async function authorizeUser() {
   const auth2 = window.gapi.auth2.getAuthInstance();
-  let email;
-  return auth2.signIn({
+  const user = await auth2.signIn({
     fetch_basic_profile: false,
     prompt: 'select_account',
     scope: 'email',
-  })
-  .then(user => {
-    const { access_token } = user.getAuthResponse();
-    email = user.getBasicProfile().getEmail();
-    return fetch(OAUTH_BACKEND_URL, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Origin': '',
-      },
-      body: JSON.stringify({ access_token })
-    });
-  })
-  .then(response => response.json())
-  .then(({ token }) => {
-    setAuth(token, email);
-    return Promise.resolve(email);
   });
+  const { access_token } = user.getAuthResponse();
+  const email = user.getBasicProfile().getEmail();
+  const response = await fetch(OAUTH_BACKEND_URL, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Origin': '',
+    },
+    body: JSON.stringify({ access_token })
+  });
+  const { token } = await response.json();
+  setAuth(token, email);
+  return email;
 }
 
 export function AuthScriptLoader(Wrapped) {
