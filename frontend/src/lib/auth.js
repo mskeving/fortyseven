@@ -30,14 +30,13 @@ export async function initializeAuthLib() {
   }
 
   await new Promise((resolve, reject) => {
-    window.gapi.load('auth2', () => {
-      window.gapi.auth2.init({
+    window.gapi.load('auth2', async () => {
+      await window.gapi.auth2.init({
         client_id: GOOGLE_CLIENT_ID,
         fetch_basic_profile: false,
         scope: 'email',
-      }).then(
-        () => resolve()
-      );
+      });
+      resolve();
     });
   });
 
