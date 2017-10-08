@@ -8,19 +8,17 @@ class Login extends Component {
     this.state = { ready: false };
   }
 
-  componentWillReceiveProps({ isScriptLoadSucceed }) {
+  async componentWillReceiveProps({ isScriptLoadSucceed }) {
     if (isScriptLoadSucceed) {
-      initializeAuthLib().then(
-        () => this.setState({ ready: true })
-      );
+      await initializeAuthLib();
+      this.setState({ ready: true })
     }
   }
 
-  login = () => {
+  login = async () => {
     const { history } = this.props;
-    authorizeUser().then(
-      () => history.push('/')
-    );
+    await authorizeUser();
+    history.push('/');
   }
 
   render() {
