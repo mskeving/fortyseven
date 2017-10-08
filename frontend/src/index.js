@@ -34,6 +34,8 @@ const PublicRoute = ({ component: Component, ...rest }) => (
   />
 );
 
+window.__reactRoot = document.getElementById('root');
+
 render(
   <Provider store={store}>
     <ConnectedRouter history={history}>
@@ -44,7 +46,7 @@ render(
       </Switch>
     </ConnectedRouter>
   </Provider>,
-  document.getElementById('root')
+  window.__reactRoot
 );
 
 registerServiceWorker();

@@ -24,14 +24,21 @@ export function setAuth(token, email) {
   } catch (e) {}
 }
 
+export function logOut() {
+  try {
+    window.localStorage.removeItem(TOKEN_KEY);
+    window.localStorage.removeItem(EMAIL_KEY);
+  } catch (e) {}
+}
+
 export async function initializeAuthLib() {
   if (window.gapi.auth2) {
     return;
   }
 
   await new Promise((resolve, reject) => {
-    window.gapi.load('auth2', async () => {
-      await window.gapi.auth2.init({
+    window.gapi.load('auth2', () => {
+      window.gapi.auth2.init({
         client_id: GOOGLE_CLIENT_ID,
         fetch_basic_profile: false,
         scope: 'email',
