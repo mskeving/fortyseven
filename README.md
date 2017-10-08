@@ -5,8 +5,8 @@
 - `$ pip install virtualenvwrapper`
 - `$ mkvirtualenv -p python3 fortyseven`
 - `$ workon fortyseven`
-- `$ pip install -r requirements.txt`
-- `$ python dev.py`
+- `$ make setup`
+- `$ make dev`
 
 ### Set up local db
 
@@ -20,3 +20,8 @@
 
 - `$ cd fortyseven/`
 - `$ python manage.py initdb`
+
+### Frontend setup
+
+- `$ make install`
+- `$ make frontend`
