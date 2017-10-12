@@ -5,7 +5,13 @@ from social_flask.routes import social_auth
 from social_flask_sqlalchemy.models import init_social, PSABase
 from flask_cors import CORS
 
+from config.flask import Development
+
+
+SQLALCHEMY_DATABASE_URI = Development.SQLALCHEMY_DATABASE_URI
+
 app = Flask(__name__, template_folder='static/templates')
+app.config.from_object(__name__)  # add capitalized variables above to config
 app.register_blueprint(social_auth)
 cors = CORS(app, origins=[re.compile('https?:\/\/localhost:[0-9]+')])
 
