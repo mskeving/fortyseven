@@ -19,7 +19,7 @@ db = SQLAlchemy(app)
 
 def create_app(config, manager=False):
     app.config.from_object('config.flask.{}'.format(config))
-    app.config.from_pyfile('../config/secrets.cfg')
+    app.config.from_pyfile('../config/secrets.py')
     db.init_app(app)
     if not manager:
         init_social(app, db.session)

@@ -19,3 +19,4 @@ yarn-error.log*
 # secrets
 .vault-password-file
 config/secrets.cfg
+config/secrets.py
