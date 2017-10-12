@@ -3,7 +3,7 @@ SHELL = /bin/bash
 GIT_ROOT := $(shell git rev-parse --show-toplevel)
 VAULT_PASSWORD_FILE := $(GIT_ROOT)/.vault-password-file
 SECRETS_ENCRYPTED := $(GIT_ROOT)/config/secrets.encrypted
-SECRETS_DECRYPTED := $(GIT_ROOT)/config/secrets.cfg
+SECRETS_DECRYPTED := $(GIT_ROOT)/config/secrets.py
 VAULT_OPTIONS := --vault-password-file $(VAULT_PASSWORD_FILE)
 
 .PHONY: dev prod frontend secrets decrypt setup install
