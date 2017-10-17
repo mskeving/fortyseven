@@ -19,9 +19,8 @@ class Message(db.Model):
     body = db.Column(db.Text())
     label = db.Column(db.Text())  # "chats"
     message_id = db.Column(db.Text(), unique=True)
-    pruned = db.Column(db.Text())
+    sender_user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     timestamp = db.Column(db.Text())
-    subject = db.Column(db.Text())
     thread_id = db.Column(db.Text())
 
 class Token(db.Model):
