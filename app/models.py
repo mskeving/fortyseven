@@ -20,7 +20,7 @@ class Message(db.Model):
     label = db.Column(db.Text())  # "chats"
     message_id = db.Column(db.Text(), unique=True)
     sender_user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    timestamp = db.Column(db.Text())
+    timestamp = db.Column(db.Text()) # milliseconds
     thread_id = db.Column(db.Text())
 
 class Token(db.Model):

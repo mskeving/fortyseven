@@ -1,6 +1,7 @@
 import base64
 import json
 import re
+import time
 from apiclient import errors
 from collections import namedtuple
 
@@ -9,8 +10,10 @@ from app.lib.gmail_api import GmailApi
 from app.models import User, Message
 from config.secrets import USER_INFO_BY_EMAIL, GMAIL_QUERIES
 
+CHUNK_SIZE = 100
 
-# TODO don't run query up here?
+# TODO don't run query up here? But don't do it in _parse_response
+# either, otherwise we'll be doing this for every response.
 EMAIL_TO_USER_ID = {user.email: user.id for user in User.query.all()}
 
 db = app.db
@@ -53,10 +56,21 @@ def fetch_and_save_new_messages(query):
     Returns
         [Int] Count of new messages saved
     """
-    existing_message_ids = set(m.message_id for m in Message.query.all())
+    # Find the last 500 messages we stored in the db to check against to make sure we're
+    # not trying to save an existing message. We'll alter our query to only
+    # search for messages after the most recent one, but because we can't get more granular
+    # than searching by day, so there may still be overlap to check for (and we can chat a
+    # lot in a day).
+    existing_messages = Message.query.order_by(Message.timestamp.desc()).limit(500).all()
+    existing_ids = set(m.message_id for m in existing_messages)
+
+    # Update query to search only after last saved message
+    last_timestamp = int(existing_messages[0].timestamp) / 1000  # convert to seconds
+    formatted_timestamp = time.strftime('%Y/%m/%d', time.localtime(last_timestamp))
+    query = "{} after:{}".format(query, formatted_timestamp)
 
     try:
-        print("Fetching new messages from query: {}".format(query))
+        print("Fetching new messages with query: {}".format(query))
         response = service.users().messages().list(userId='me', q=query).execute()
         messages = response.get('messages', [])
 
@@ -69,42 +83,54 @@ def fetch_and_save_new_messages(query):
             messages.extend(response.get('messages', []))
 
     except errors.HttpError as error:
-        print('An error occurred retrieving mesages: {}'.format(error))
+        print('An error occurred retrieving messages via messages.list(): {}'.format(error))
+        return
 
-    new_message_ids = [m['id'] for m in messages if m['id'] not in existing_message_ids]
-
+    new_message_ids = [m['id'] for m in messages if m['id'] not in existing_ids]
     print("Found {} new messages".format(len(new_message_ids)))
-    for count, message_id in enumerate(new_message_ids):
+
+    count = 0
+    chunks = _chunk(new_message_ids, CHUNK_SIZE)
+    for chunk in chunks:
+        batch = service.new_batch_http_request(callback=_parse_response_and_save)
+        for message_id in chunk:
+            batch.add(service.users().messages().get(userId='me', id=message_id))
+
         try:
-            response = service.users().messages().get(userId='me', id=message_id).execute()
+            batch.execute()
         except errors.HttpError as error:
-            print('An error occurred: {}'.format(error))
+            print('An error occurred retrieving messages via messages.get(): {}'.format(error))
+            return
 
-        parsed_response = _parse_response(response)
-        if parsed_response:
-            new_message = Message(
-                data=parsed_response.data,
-                body=parsed_response.body,
-                label=parsed_response.label,
-                message_id=parsed_response.message_id,
-                sender_user_id=parsed_response.sender_user_id,
-                timestamp=parsed_response.timestamp,
-                thread_id=parsed_response.thread_id
-            )
-            db.session.add(new_message)
+        db.session.commit()
 
-        num_messages_left = len(new_message_ids) - count
-        if (num_messages_left % 100 == 0 or
-            num_messages_left < 100 and num_messages_left % 25 == 0 or
-            num_messages_left <= 10):
-            # committing in here in case script fails mid run.
-            # don't want to start from the beginning again.
-            db.session.commit()
-            print("{} messages to go".format(num_messages_left))
-
-    db.session.commit()
+        count += len(chunk)
+        print("{} left to save".format(len(new_message_ids) - count))
 
     return len(new_message_ids)
+
+
+def _chunk(l, size):
+    for i in xrange(0, len(l), size):
+        yield l[i:i+size]
+
+
+def _parse_response_and_save(request_id, response, exception):
+    if exception is not None:
+        raise Exception(exception)
+
+    parsed_response = _parse_response(response)
+    if parsed_response:
+        new_message = Message(
+            data=parsed_response.data,
+            body=parsed_response.body,
+            label=parsed_response.label,
+            message_id=parsed_response.message_id,
+            sender_user_id=parsed_response.sender_user_id,
+            timestamp=parsed_response.timestamp,
+            thread_id=parsed_response.thread_id
+        )
+        db.session.add(new_message)
 
 
 def _parse_response(resp):
