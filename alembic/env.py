@@ -16,8 +16,6 @@ config = context.config
 app = create_app('Development')
 config.set_main_option('sqlalchemy.url', app.config['SQLALCHEMY_DATABASE_URI'])
 
-config.set_main_option('sqlalchemy.url', app.config['SQLALCHEMY_DATABASE_URI'])
-
 # Interpret the config file for Python logging.
 fileConfig(config.config_file_name)
 
