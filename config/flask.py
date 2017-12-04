@@ -1,5 +1,8 @@
 import os
 
+from config.secrets import SQLALCHEMY_DATABASE_URI
+
+
 class Config(object):
     CSRF_ENABLED = True
     SOCIAL_AUTH_AUTHENTICATION_BACKENDS = ( 'social_core.backends.google.GoogleOAuth2',)
@@ -7,9 +10,11 @@ class Config(object):
     SOCIAL_AUTH_USER_MODEL = 'app.models.User'
     USER_MODEL = 'app.models.User'
 
+
 class Development(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost:5432/fortyseven'
+    SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI
+
 
 class Production(Config):
     DEBUG = False
