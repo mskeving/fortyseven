@@ -8,9 +8,10 @@ def api(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         authorization = request.headers.get('Authorization')
+        if not authorization:
+            abort(401)
         parts = authorization.split()
         token = Token.query.filter(Token.key == parts[1]).first()
-        print(token)
         if not token:
             abort(401)
         return f(*args, **kwargs)
