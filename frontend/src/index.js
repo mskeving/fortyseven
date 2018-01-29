@@ -5,12 +5,32 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import store, { history } from 'store';
 import { isLoggedIn } from 'lib/auth';
+import { injectGlobal } from 'styled-components';
 import App from 'components/App';
 import Login from 'components/Login';
 import NotFound from 'components/NotFound';
 import registerServiceWorker from 'registerServiceWorker';
 
-import 'styles/reset.css';
+injectGlobal`
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+html, body, #root {
+  height: 100vh;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  list-style-type: none;
+}
+`;
 
 const AuthenticatedRoute = ({ component: Component, ...rest }) => (
   <Route
