@@ -1,26 +1,24 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
+import { Column } from 'components/layout';
 import Header from 'components/Header';
+import ActivityCalendar from 'components/ActivityCalendar';
 
-const Container = styled.div`
+const Container = Column.extend`
   min-height: 100%;
-  display: flex;
-  flex-direction: column;
 `;
-const Page = styled.div`
+const Page = Column.extend`
   flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  margin: 30px;
 `;
 
 export default class App extends Component {
   render() {
+	const values = Array(365).fill(0).map(() => Math.floor(Math.random() * 17));
     return (
       <Container>
         <Header />
         <Page>
-          Hi
+          <ActivityCalendar start="20180131" values={values} />
         </Page>
       </Container>
     );
