@@ -2,12 +2,16 @@ import binascii
 import os
 from app import app, db
 from app.models import Token
-from flask import g, jsonify, request, Response
+from flask import abort, g, jsonify, request, Response
 from social_core.actions import do_auth
 from social_flask.utils import psa
-from app.api import api
 
-@app.route('/')
+from app.auth import login_required
+from app.lib.util import convert_to_timestamp
+from app.models import Message
+
+
+@app.route('/', methods=['GET'])
 def index():
 	return "It's working"
 
@@ -32,7 +36,29 @@ def exchange_token(backend):
         print(e)
         return jsonify({ 'error': True })
 
-@app.route('/api/poop/', methods=['POST'])
-@api
-def poop():
-    return jsonify({ 'hello': True })
+@app.route('/api/messages', methods=['GET'])
+def get_messages(message_id=None):
+    limit = request.args.get('limit')
+    after = request.args.get('after', '1/1/70')
+    try:
+        timestamp = convert_to_timestamp(after)
+    except ValueError:
+        return jsonify({
+            'error': "date not formatted correctly. Received: {} Expected: mm/dd/yy".format(after)
+        })
+
+    messages = Message.query.order_by(Message.timestamp.asc()).filter(Message.timestamp>timestamp).limit(limit).all()
+    messages = [m.to_api_dict() for m in messages]
+
+    return jsonify({
+        'count': len(messages),
+        'messages': messages
+    })
+
+@app.route('/api/messages/<message_id>', methods=['GET'])
+def get_message(message_id=None):
+    message = Message.query.filter_by(id=message_id).first()
+    if message is None:
+        return abort(404)
+
+    return jsonify({'message': message.to_api_dict()})
