@@ -4,7 +4,7 @@ from app import app, db
 from app.models import Token
 import types
 
-def api(f):
+def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         authorization = request.headers.get('Authorization')
