@@ -38,6 +38,8 @@ def exchange_token(backend):
 
 @app.route('/api/messages', methods=['GET'])
 def get_messages(message_id=None):
+    # TODO add paging because right now you could query
+    # for and return ALL messages, which is nuts.
     limit = request.args.get('limit')
     after = request.args.get('after', '1/1/70')
     try:
