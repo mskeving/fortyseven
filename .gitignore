@@ -6,6 +6,8 @@
 .env.test.local
 .env.production.local
 
+client_secret.json
+
 # frontend assets
 frontend/node_modules
 frontend/coverage
