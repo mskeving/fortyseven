@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
-import list from 'modules/list'
+import messages from 'modules/messages'
 
 export default combineReducers({
-  list,
+  messages,
   routing: routerReducer
 });

@@ -5,6 +5,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import store, { history } from 'store';
 import { isLoggedIn } from 'lib/auth';
+import { loadMessages } from 'modules/messages';
 import { injectGlobal } from 'styled-components';
 import App from 'components/App';
 import Login from 'components/Login';
@@ -53,6 +54,10 @@ const PublicRoute = ({ component: Component, ...rest }) => (
     )}
   />
 );
+
+if (isLoggedIn()) {
+  store.dispatch(loadMessages());
+}
 
 window.__reactRoot = document.getElementById('root');
 
