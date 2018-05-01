@@ -1,12 +1,14 @@
-export const LOAD = 'load/list';
+import { apiGet } from 'lib/api';
+export const LOAD = 'load/messages';
 
 const initialState = {
   loading: true
 };
 
-export const loadList = () => {
-  return dispatch => {
-    dispatch({ type: LOAD });
+export const loadMessages = () => {
+  return async dispatch => {
+    const messages = await apiGet('api/messages', { limit: 20 });
+    dispatch({ type: LOAD, messages });
   }
 };
 
