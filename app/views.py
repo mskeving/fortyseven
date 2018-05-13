@@ -5,6 +5,7 @@ from app.models import Token
 from flask import abort, g, jsonify, request, Response
 from social_core.actions import do_auth
 from social_flask.utils import psa
+from sqlalchemy.sql import text
 
 from app.auth import login_required
 from app.lib.util import convert_to_timestamp
@@ -64,3 +65,25 @@ def get_message(message_id=None):
         return abort(404)
 
     return jsonify({'message': message.to_api_dict()})
+
+@app.route('/api/activity', methods=['GET'])
+def get_activity():
+    sql = text(
+        """
+        SELECT date_trunc('day', timestamp at time zone 'PDT') as date, count(1)
+        from messages where timestamp > (current_date - 365)
+        group by date
+        order by date asc;
+        """
+    )
+    date_counts = db.session.execute(sql).fetchall()
+
+    date_to_count = {}
+    for date_count in date_counts:
+        datetime, count_long = date_count
+        date_str = datetime.strftime('%Y%m%d')
+        date_to_count[date_str] = int(count_long)
+
+    return jsonify({
+        'date_to_count': date_to_count
+    })
