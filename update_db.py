@@ -44,7 +44,7 @@ def create_or_update_users():
     db.session.commit()
 
 
-def fetch_and_save_new_messages(query):
+def fetch_and_save_new_messages(query, existing_messages):
     """
     Get all messages from gmail api and save to db. This happens in a few steps - 
     1. use gmail api messages.list() to get a list of all message ids returned from query
@@ -56,15 +56,11 @@ def fetch_and_save_new_messages(query):
     Returns
         [Int] Count of new messages saved
     """
-    # Find the last 500 messages we stored in the db to check against to make sure we're
-    # not trying to save an existing message. We'll alter our query to only
-    # search for messages after the most recent one, but because we can't get more granular
-    # than searching by day, so there may still be overlap to check for (and we can chat a
-    # lot in a day).
-    existing_messages = Message.query.order_by(Message.timestamp.desc()).limit(500).all()
     existing_ids = set(m.message_id for m in existing_messages)
 
-    # Update query to search only after last saved message
+    # existing_messges is the last chunk of 500 messages sent. We take the earliest of those
+    # and query for anything after that. There'll be slight overlap but it'll prevent missing
+    # messages.
     last_timestamp = int(existing_messages[0].timestamp) / 1000  # convert to seconds
     formatted_timestamp = time.strftime('%Y/%m/%d', time.localtime(last_timestamp))
     query = "{} after:{}".format(query, formatted_timestamp)
@@ -214,10 +210,20 @@ def _parse_email_value(value):
     return email_address
 
 
+def get_last_messages():
+    # Find the last 500 messages we stored in the db to check against to make sure we're
+    # not trying to save an existing message. We'll alter our query to only
+    # search for messages after the most recent one, but because we can't get more granular
+    # than searching by day, so there may still be overlap to check for (and we can chat a
+    # lot in a day).
+    return Message.query.order_by(Message.timestamp.desc()).limit(500).all()
+
 if __name__ == "__main__":
     create_or_update_users()
 
-    total_messages = 0
+    existing_messages = get_last_messages()
+
+    new_message_count = 0
     for query in GMAIL_QUERIES:
-        total_messages += fetch_and_save_new_messages(query)
-    print("{} new messages saved".format(total_messages))
+        new_message_count += fetch_and_save_new_messages(query, existing_messages)
+    print("{} new messages saved".format(new_message_count))
