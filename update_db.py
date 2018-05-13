@@ -4,12 +4,15 @@ import re
 import time
 from apiclient import errors
 from collections import namedtuple
+from datetime import datetime
 
 import app
 from app.lib.gmail_api import GmailApi
 from app.models import User, Message
 from config.secrets import USER_INFO_BY_EMAIL, GMAIL_QUERIES
 
+# Number of messages to send to gmail API.
+# More than this will get you rate limited.
 CHUNK_SIZE = 100
 
 # TODO don't run query up here? But don't do it in _parse_response
@@ -28,7 +31,6 @@ MessageData = namedtuple('MessageData', [
     'sender_user_id',
     'thread_id',
 ])
-
 
 def create_or_update_users():
     for email, user_attributes in USER_INFO_BY_EMAIL.items():
@@ -61,9 +63,10 @@ def fetch_and_save_new_messages(query, existing_messages):
     # existing_messges is the last chunk of 500 messages sent. We take the earliest of those
     # and query for anything after that. There'll be slight overlap but it'll prevent missing
     # messages.
-    last_timestamp = int(existing_messages[0].timestamp) / 1000  # convert to seconds
-    formatted_timestamp = time.strftime('%Y/%m/%d', time.localtime(last_timestamp))
-    query = "{} after:{}".format(query, formatted_timestamp)
+    if len(existing_messages) > 0:
+        last_timestamp = existing_messages[0].timestamp
+        formatted_timestamp = last_timestamp.strftime('%Y/%m/%d')
+        query = "{} after:{}".format(query, formatted_timestamp)
 
     try:
         print("Fetching new messages with query: {}".format(query))
@@ -187,10 +190,12 @@ def _parse_response(resp):
 
     # we only care about chat labels for now
     label = 'chats' if 'chats' in resp['labelIds'] else None
+    time_secs = int(resp['internalDate']) / 1000 # convert to seconds
+    timestamp = datetime.fromtimestamp(time_secs)
 
     return MessageData(
         body=body,
-        timestamp=resp['internalDate'],
+        timestamp=timestamp,
         message_id=resp['id'],
         label=label,
         data=json.dumps(resp),
@@ -210,18 +215,18 @@ def _parse_email_value(value):
     return email_address
 
 
-def get_last_messages():
+def get_last_messages(limit=500):
     # Find the last 500 messages we stored in the db to check against to make sure we're
     # not trying to save an existing message. We'll alter our query to only
     # search for messages after the most recent one, but because we can't get more granular
     # than searching by day, so there may still be overlap to check for (and we can chat a
     # lot in a day).
-    return Message.query.order_by(Message.timestamp.desc()).limit(500).all()
+    return Message.query.order_by(Message.timestamp.desc()).limit(limit).all()
 
 if __name__ == "__main__":
     create_or_update_users()
 
-    existing_messages = get_last_messages()
+    existing_messages = get_last_messages(limit=500)
 
     new_message_count = 0
     for query in GMAIL_QUERIES:
