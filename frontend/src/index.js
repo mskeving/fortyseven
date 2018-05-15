@@ -1,12 +1,12 @@
 import React from 'react';
-import { render } from 'react-dom';
-import { Provider } from 'react-redux';
-import { Redirect, Route, Switch } from 'react-router-dom';
-import { ConnectedRouter } from 'react-router-redux';
-import store, { history } from 'store';
-import { isLoggedIn } from 'lib/auth';
-import { loadMessages } from 'modules/messages';
-import { injectGlobal } from 'styled-components';
+import {render} from 'react-dom';
+import {Provider} from 'react-redux';
+import {Redirect, Route, Switch} from 'react-router-dom';
+import {ConnectedRouter} from 'react-router-redux';
+import store, {history} from 'store';
+import {isLoggedIn} from 'lib/auth';
+import {loadMessageActivity} from 'modules/messages';
+import {injectGlobal} from 'styled-components';
 import App from 'components/App';
 import Login from 'components/Login';
 import NotFound from 'components/NotFound';
@@ -33,30 +33,34 @@ li {
 }
 `;
 
-const AuthenticatedRoute = ({ component: Component, ...rest }) => (
+const AuthenticatedRoute = ({component: Component, ...rest}) => (
   <Route
     {...rest}
-    render={props => (
-      isLoggedIn() ?
-        (<Component {...props} />) :
-        (<Redirect to={{ pathname: '/login', state: { from: props.location }}} />)
-    )}
+    render={props =>
+      isLoggedIn() ? (
+        <Component {...props} />
+      ) : (
+        <Redirect to={{pathname: '/login', state: {from: props.location}}} />
+      )
+    }
   />
 );
 
-const PublicRoute = ({ component: Component, ...rest }) => (
+const PublicRoute = ({component: Component, ...rest}) => (
   <Route
     {...rest}
-    render={props => (
-      isLoggedIn() ?
-        (<Redirect to={{ pathname: '/', state: { from: props.location }}} />) :
-        (<Component {...props} />)
-    )}
+    render={props =>
+      isLoggedIn() ? (
+        <Redirect to={{pathname: '/', state: {from: props.location}}} />
+      ) : (
+        <Component {...props} />
+      )
+    }
   />
 );
 
 if (isLoggedIn()) {
-  store.dispatch(loadMessages());
+  store.dispatch(loadMessageActivity());
 }
 
 window.__reactRoot = document.getElementById('root');
@@ -71,7 +75,24 @@ render(
       </Switch>
     </ConnectedRouter>
   </Provider>,
-  window.__reactRoot
+  window.__reactRoot,
 );
+
+if (module.hot) {
+  module.hot.accept('components/App', () => {
+    render(
+      <Provider store={store}>
+        <ConnectedRouter history={history}>
+          <Switch>
+            <PublicRoute path="/login" component={Login} />
+            <AuthenticatedRoute exact path="/" component={App} />
+            <Route component={NotFound} />
+          </Switch>
+        </ConnectedRouter>
+      </Provider>,
+      window.__reactRoot,
+    );
+  });
+}
 
 registerServiceWorker();
