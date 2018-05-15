@@ -21,7 +21,6 @@ class App extends Component {
       return null;
     }
 
-    // const start = moment().format('YYYYMMDD');
     const days = [...Array(365).keys()]
       .map(x =>
         moment()

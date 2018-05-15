@@ -56,26 +56,24 @@ export default class ActivityCalendar extends Component {
       return '#ffffff';
     }
 
-    const factor = Math.max(1, Math.floor(max / 10));
-    const weighted = Math.ceil(day.value / factor);
-    if (weighted === 0) {
+    if (!day.value) {
       return '#ececec';
     }
-    if (weighted <= 2) {
+
+    const value = day.value / max;
+    if (value < 0.1) {
       return PURPLE['x-light'];
     }
-    if (weighted <= 5) {
+    if (value <= 0.25) {
       return PURPLE['light'];
     }
-    if (weighted <= 9) {
+    if (value <= 0.45) {
       return PURPLE['base'];
     }
-    if (weighted <= 15) {
+    if (value <= 0.6) {
       return PURPLE['dark'];
     }
-    if (weighted <= 19) {
-      return PURPLE['x-dark'];
-    }
+    return PURPLE['x-dark'];
   }
 
   renderDay(day, i, max) {
