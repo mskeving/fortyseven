@@ -1,15 +1,15 @@
-import { apiGet } from 'lib/api';
+import {apiGet} from 'lib/api';
 export const LOAD = 'load/messages';
 
 const initialState = {
-  loading: true
+  loading: true,
 };
 
-export const loadMessages = () => {
+export const loadMessageActivity = () => {
   return async dispatch => {
-    const messages = await apiGet('api/messages', { limit: 20 });
-    dispatch({ type: LOAD, messages });
-  }
+    const {date_to_count} = await apiGet('api/activity', {limit: 20});
+    dispatch({type: LOAD, activity: date_to_count});
+  };
 };
 
 export default (state = initialState, action) => {
@@ -17,7 +17,8 @@ export default (state = initialState, action) => {
     case LOAD:
       return {
         ...state,
-        loading: false
+        loading: false,
+        activity: action.activity,
       };
     default:
       return state;
