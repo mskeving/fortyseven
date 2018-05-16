@@ -70,7 +70,7 @@ export default class ActivityCalendar extends Component {
     if (value <= 0.45) {
       return PURPLE['base'];
     }
-    if (value <= 0.6) {
+    if (value <= 0.7) {
       return PURPLE['dark'];
     }
     return PURPLE['x-dark'];
