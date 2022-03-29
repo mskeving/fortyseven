@@ -22,7 +22,7 @@ Mako==1.0.6
 MarkupSafe==0.23
 oauth2client==4.1.2
 oauthlib==2.0.2
-paramiko==2.2.1
+paramiko==2.10.1
 pbr==3.1.1
 psycopg2==2.7.4
 pudb==2017.1.2
