@@ -6,7 +6,7 @@
     "classnames": "^2.2.5",
     "cross-env": "^5.0.5",
     "flow-bin": "^0.50.0",
-    "moment": "^2.20.1",
+    "moment": "^2.29.2",
     "node-sass-chokidar": "0.0.3",
     "npm-run-all": "^4.0.2",
     "react": "^15.6.1",
